@@ -122,8 +122,16 @@ class BotBridge:
         self.mm_bot = bot
 
     def route(self, category: str, title: str, body: str, urgency: str = "info"):
-        """Route a message to the appropriate platforms."""
-        platforms = self.routing.get(category, self.routing.get(urgency, ["discord"]))
+        """Route a message to the appropriate platforms.
+
+        Aware engagements (questions) go to Discord.
+        Status updates go to whatever the routing config says.
+        """
+        # For aware category, always route to Discord (question/interview channel)
+        if category == "aware":
+            platforms = ["discord"]
+        else:
+            platforms = self.routing.get(category, self.routing.get(urgency, ["discord"]))
 
         message = {
             "category": category,

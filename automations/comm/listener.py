@@ -139,7 +139,18 @@ class WakeListener(discord.Client):
 def load_config() -> str:
     with open(CONFIG_PATH) as f:
         config = json.load(f)
-    return config.get("discord", {}).get("token", "")
+    token_env = config.get("discord", {}).get("token_env", "DISCORD_BOT_TOKEN")
+    token = os.environ.get(token_env)
+    if not token:
+        env_path = PROJEX_ROOT / "automations" / "comm" / ".env"
+        if env_path.exists():
+            for line in env_path.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+        token = os.environ.get(token_env)
+    return token
 
 
 async def main():

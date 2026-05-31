@@ -97,6 +97,115 @@ All content is just a review-and-post away.
 4. Use `/aware notice "something you observed"` to build your journal
 5. When inspiration strikes, `/aware publish "your idea"` to get content
 
+## Orchestration System — Multi-Channel Agent Network
+
+The Aware system runs a **full orchestration engine** that sends scheduled engagements through multiple channels using distinct agent profiles. Each agent has its own personality, voice, and channel preferences.
+
+### Channel Routing Rules
+
+The system follows **strict channel routing rules** to keep conversations clean:
+
+| Channel | Purpose | What goes there |
+|---------|---------|-----------------|
+| 🟣 **Discord** | Interview / Questions | Prompts that need your input: morning intention, evening reflection, goal check-in, deep reflection, creative spark |
+| 🔔 **Notifications** | Updates / Information | One-way updates that don't need a reply: daily digest, pattern notices, content opportunities |
+
+**Hard rules (enforced in 3 places — orchestrator, channels router, and auto-engage script):**
+1. **NEVER** ask questions through notifications
+2. **NEVER** send general updates through Discord
+3. Questions → Discord only
+4. Updates → Notifications only
+
+### Agent Network
+
+| Agent | Role | Primary Channel | Tone |
+|-------|------|----------------|------|
+| 🎯 **Nexus** | Communications Coordinator | Discord (questions) / Notify (digests) | Clear, structured, decisive |
+| 📣 **Echo** | Social Media Manager | Discord (sparks) / Notify (updates) | Conversational, platform-native |
+| 📰 **Press** | PR Specialist | Discord (briefings) / Notify (published) | Professional, articulate |
+| 🛡️ **Shield** | Crisis Communications | Discord + Notify | Calm, measured, transparent |
+| 📡 **Signal** | Media Relations | Discord (tasks) / Notify (notices) | Warm, relationship-focused |
+| 🧠 **Aware** | Life Engagement System | Discord (questions) / Notify (insights) | Thoughtful, observant, encouraging |
+
+### Engagement Schedule
+
+The system engages you through different agents at different times. Each prompt is routed to exactly one channel based on its type:
+
+**Daily:**
+- 09:00 — 🧠 Aware morning prompt → 🟣 Discord *(question: what's your intention?)*
+- 12:00 — 📣 Echo creative spark → 🟣 Discord *(question: thought experiment)*
+- 18:00 — 🧠 Aware evening prompt → 🟣 Discord *(question: how did today go?)*
+- 21:00 — 🎯 Nexus daily digest → 🔔 Notification *(update: stats + patterns)*
+
+**Weekly:**
+- Mon 10:00 — 🧠 Aware check-in → 🟣 Discord *(question: goal pulse)*
+- Mon 14:00 — 📣 Echo spark → 🟣 Discord *(question: creative prompt)*
+- Tue 11:00 — 📰 Press publish → 🔔 Notification *(update: content drafted)*
+- Wed 10:00 — 🎯 Nexus reflect → 🟣 Discord *(question: wider lens)*
+- Wed 15:00 — 📡 Signal notice → 🔔 Notification *(update: what interactions stood out)*
+- Thu 11:00 — 📣 Echo publish → 🔔 Notification *(update: content opportunity)*
+- Fri 10:00 — 🧠 Aware check-in → 🟣 Discord *(question: weekly check)*
+- Fri 16:00 — 📣 Echo spark → 🟣 Discord *(question: spark)*
+- Sat 11:00 — 🧠 Aware reflect → 🟣 Discord *(question: deep reflection)*
+- Sun 10:00 — 🎯 Nexus digest → 🔔 Notification *(update: weekly summary)*
+- Sun 18:00 — 🧠 Aware reflect → 🟣 Discord *(question: week in review)*
+
+**Monthly:**
+- Day 1 10:00 — 🧠 Aware reflect → 🟣 Discord *(question: monthly reflection)*
+- Day 1 14:00 — 🎯 Nexus digest → 🔔 Notification *(update: monthly summary)*
+- Day 15 10:00 — 📣 Echo check-in → 🟣 Discord *(question: mid-month pulse)*
+- Day 15 14:00 — 📰 Press publish → 🔔 Notification *(update: content status)*
+
+### Orchestration Commands
+- `/aware schedule` — View the full day/week/month schedule
+- `/aware agents` — See all agent profiles and their status
+- `/aware channels` — Check which channels are available (Discord, SMS, email, etc.)
+- `/aware stats [days]` — View engagement statistics and response rates
+- `/aware trends` — Compare this week's engagement to last week
+- `/aware tick` — Manually fire any due scheduled engagements
+- `/aware route <agent> <type> <channels>` — Route a custom message through an agent
+- `/aware who <agent>` — Learn about a specific agent's personality
+
+### Multi-Channel Delivery
+Engagements are delivered through every available channel simultaneously:
+- **Discord** — Full agent messages with embeds (via existing bot_bridge)
+- **Android Notifications** — Popup notifications with agent identity
+- **Toast** — Brief popup messages for quick prompts
+- **SMS/WhatsApp** — Text messages (via termux-sms-send, configure phone number)
+- **Email** — Formatted email through SendGrid/Mailgun API (configure API keys)
+- **Platform Posts** — Content posted through Echo agent to social platforms
+- **Direct** — Pi conversation prompts (always available)
+- **Clipboard** — Content copied for quick publishing
+
+### Activity Tracking
+Every engagement is tracked:
+- **What** was sent, by which agent, through which channel
+- **When** it was sent and whether it was responded to
+- **Response rate** per agent, per channel, per time period
+- **Trends** — week-over-week and month-over-month comparison
+
+### Example: Multi-Agent Flow
+```
+09:00 → 🧠 Aware sends morning prompt → 🟣 Discord
+         "What's the one thing you want to make true today?"
+         You respond with your intention
+09:01 → 📊 Tracker logs the interaction
+         
+12:00 → 📣 Echo fires a creative spark → 🟣 Discord
+         "What if you had zero constraints for a day?"
+         (optional response logged)
+         
+18:00 → 🧠 Aware evening reflection → 🟣 Discord
+         "How did today land for you?"
+         You reflect on the day
+         
+21:00 → 🎯 Nexus compiles daily digest → 🔔 Notification
+         "📊 This week: 12 engagements, 8 responses, 67% response rate"
+         (no reply needed — just informing)
+```
+
+The entire system runs automatically via the trigger engine (every 30 min) and requires no manual intervention once configured.
+
 ## General Available Commands
 - `/organize <content> [format]`: Structure information in various formats
 - `/plan <goal> [scope]`: Create structured plans for any objective

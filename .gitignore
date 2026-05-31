@@ -31,7 +31,10 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Personal
+# Environment & secrets
+.env
+.env.local
+*.secret
 .crush/
 
 # Runtime state

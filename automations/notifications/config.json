@@ -1,0 +1,15 @@
+{
+  "quiet_hours": {
+    "enabled": false,
+    "start": "22:00",
+    "end": "07:00"
+  },
+  "channels": {
+    "urgent": { "sound": true, "vibrate": true, "led": true, "notification": true },
+    "alert": { "sound": true, "vibrate": false, "led": false, "notification": true },
+    "info": { "sound": false, "vibrate": false, "led": false, "notification": true },
+    "digest": { "sound": false, "vibrate": false, "led": false, "notification": true }
+  },
+  "priority_filter": "all",
+  "digest_mode": "off"
+}

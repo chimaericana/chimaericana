@@ -676,10 +676,22 @@ def load_config() -> dict:
 
 async def main():
     config = load_config()
-    token = config.get("discord", {}).get("token")
+    token_env = config.get("discord", {}).get("token_env", "DISCORD_BOT_TOKEN")
+    token = os.environ.get(token_env)
 
-    if not token or token == "YOUR_DISCORD_BOT_TOKEN_HERE":
-        logger.error("Discord token not configured. Update config.json with your bot token.")
+    # Fallback: load from .env file
+    if not token:
+        env_path = PROJEX_ROOT / "automations" / "comm" / ".env"
+        if env_path.exists():
+            for line in env_path.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+        token = os.environ.get(token_env)
+
+    if not token:
+        logger.error("Discord token not configured. Set DISCORD_BOT_TOKEN env variable or add to automations/comm/.env")
         sys.exit(1)
 
     bot = ProjexDiscordBot(config)

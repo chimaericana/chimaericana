@@ -144,7 +144,7 @@ else:
     print("none")
       `]);
 
-      if stateResult.stdout.startsWith("yes:") {
+      if (stateResult.stdout.startsWith("yes:")) {
         const goals = stateResult.stdout.slice(4).split(",");
         quickNotify(
           `🎯 **Goal check-in!**\n\n` +
@@ -415,6 +415,159 @@ else:
         await run("python3", ["-c", `import json; json.dump(${JSON.stringify(state)}, open("${AWARE}/state.json", "w"))`]);
         ctx.ui.notify(`🎯 Goals updated: ${state["active_goals"].join(", ")}`, "info");
       }
+    },
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ORCHESTRATION COMMANDS
+  // ═══════════════════════════════════════════════════════════
+
+  const ORCHESTRATOR = `${PROJECT_ROOT}/automations/aware/orchestrator.py`;
+  const CHANNELS = `${PROJECT_ROOT}/automations/aware/channels.py`;
+  const TRACKER = `${PROJECT_ROOT}/automations/aware/tracker.py`;
+
+  // /aware schedule — Show the full engagement schedule
+  pi.registerCommand("aware schedule", {
+    description: "Show the day/week/month engagement schedule across all agents",
+    handler: async (_args, ctx) => {
+      const result = await run("python3", [ORCHESTRATOR, "schedule"]);
+      ctx.ui.notify(result.stdout || "No schedule configured.", "info");
+    },
+  });
+
+  // /aware agents — Show the agent network
+  pi.registerCommand("aware agents", {
+    description: "Show the agent network — each agent's role, tone, and channels",
+    handler: async (_args, ctx) => {
+      const result = await run("python3", [ORCHESTRATOR, "status"]);
+      ctx.ui.notify(result.stdout || "No agents configured.", "info");
+    },
+  });
+
+  // /aware channels — Check channel availability
+  pi.registerCommand("aware channels", {
+    description: "Check which engagement channels are currently available",
+    handler: async (_args, ctx) => {
+      const result = await run("python3", [CHANNELS, "status"]);
+      ctx.ui.notify(result.stdout || "Channel status unavailable.", "info");
+    },
+  });
+
+  // /aware stats — View engagement statistics
+  pi.registerCommand("aware stats", {
+    description: "View engagement statistics and response rates",
+    handler: async (args, ctx) => {
+      const days = args.trim() || "7";
+      const result = await run("python3", [TRACKER, "stats", days]);
+      const stats = JSON.parse(result.stdout || "{}");
+      
+      const lines = [
+        `📊 Engagement Stats (last ${days} days)`,
+        `  Sent: ${stats.engagements_sent || 0}`,
+        `  Responses: ${stats.responses || 0}`,
+        `  Response Rate: ${stats.response_rate || 0}%`,
+        `  Content Posted: ${stats.content_posted || 0}`,
+      ];
+      
+      if (stats.by_agent && Object.keys(stats.by_agent).length) {
+        lines.push(`\n  By Agent:`);
+        for (const [agent, count] of Object.entries(stats.by_agent)) {
+          lines.push(`    ${agent}: ${count}`);
+        }
+      }
+      
+      if (stats.by_channel && Object.keys(stats.by_channel).length) {
+        lines.push(`\n  By Channel:`);
+        for (const [ch, count] of Object.entries(stats.by_channel)) {
+          lines.push(`    ${ch}: ${count}`);
+        }
+      }
+      
+      ctx.ui.notify(lines.join("\n"), "info");
+    },
+  });
+
+  // /aware trends — Compare this week to last week
+  pi.registerCommand("aware trends", {
+    description: "Show engagement trends — compare this week to last week",
+    handler: async (_args, ctx) => {
+      const result = await run("python3", [TRACKER, "trends"]);
+      ctx.ui.notify(result.stdout || "Not enough data for trends yet.", "info");
+    },
+  });
+
+  // /aware tick — Manually check and fire due engagements
+  pi.registerCommand("aware tick", {
+    description: "Manually check and fire any due scheduled engagements",
+    handler: async (_args, ctx) => {
+      ctx.ui.notify("🔄 Checking scheduler...", "info");
+      const result = await run("python3", [ORCHESTRATOR, "tick"]);
+      ctx.ui.notify(result.stdout || "Tick complete.", "info");
+    },
+  });
+
+  // /aware route <agent> <type> <message> [channels] — Route a custom message through an agent
+  pi.registerCommand("aware route", {
+    description: "Route a custom message through an agent profile to specific channels",
+    handler: async (args, ctx) => {
+      const parts = args.trim().split(" ");
+      if (parts.length < 2) {
+        quickNotify(
+          "📡 **Route a message through an agent.**\n\n" +
+          "Usage: `/aware route <agent> <type> <message>`\n" +
+          "\nAgents: nexus, echo, press, shield, signal, aware" +
+          "\nTypes: morning, evening, spark, checkin, reflect, notice, publish, digest" +
+          "\n\nExample: `/aware route echo spark \"What if you had zero constraints?\"`" +
+          "\nExample: `/aware route nexus digest discord,email`"
+        );
+        return;
+      }
+      
+      const agent = parts[0].toLowerCase();
+      const ptype = parts[1].toLowerCase();
+      const remaining = parts.slice(2).join(" ");
+      
+      // If remaining has commas, treat as channel list
+      let channels = ["direct"];
+      let message = remaining;
+      if (remaining.includes(",")) {
+        channels = remaining.split(",").map((s: string) => s.trim());
+        message = "";
+      }
+      
+      ctx.ui.notify(`📡 Routing through ${agent}...`, "info");
+      
+      // Generate the engagement and dispatch
+      const result = await run("python3", [ORCHESTRATOR, "test", agent, ptype, channels.join(",")]);
+      ctx.ui.notify(result.stdout || "Route dispatched.", "info");
+    },
+  });
+
+  // /aware who <agent> — Show agent personality and details
+  pi.registerCommand("aware who", {
+    description: "Learn about an agent — their role, personality, and communication style",
+    handler: async (args, ctx) => {
+      const agent = args.trim().toLowerCase();
+      if (!agent) {
+        quickNotify(
+          "🧠 **Available Agents:**\n\n" +
+          "🎯 **Nexus** — Communications Coordinator\n" +
+          "  Routes information, coordinates agents, handles digests\n\n" +
+          "📣 **Echo** — Social Media Manager\n" +
+          "  Creates content, schedules posts, tracks engagement\n\n" +
+          "📰 **Press** — PR Specialist\n" +
+          "  Drafts press releases, pitches, key messages\n\n" +
+          "🛡️ **Shield** — Crisis Communications\n" +
+          "  Crisis response, holding statements, reputation management\n\n" +
+          "📡 **Signal** — Media Relations\n" +
+          "  Journalist outreach, coverage tracking, media lists\n\n" +
+          "🧠 **Aware** — Life Engagement System\n" +
+          "  Your personal growth engine — prompts, journal, insights"
+        );
+        return;
+      }
+      const result = await run("python3", [ORCHESTRATOR, "agent", agent]);
+      ctx.ui.notify(result.stdout || `Unknown agent: ${agent}`, "info");
     },
   });
 }

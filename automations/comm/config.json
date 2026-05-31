@@ -1,21 +1,24 @@
 {
   "discord": {
-    "token": "YOUR_DISCORD_BOT_TOKEN_HERE",
+    "token_env": "DISCORD_BOT_TOKEN",
+    "owner_id": "1509455474318250087",
     "channels": {
       "alerts": "ALERT_CHANNEL_ID",
       "reports": "REPORT_CHANNEL_ID",
       "social": "SOCIAL_CHANNEL_ID",
       "pr": "PR_CHANNEL_ID",
-      "general": "GENERAL_CHANNEL_ID"
+      "general": "1509457679767048219",
+      "aware": "1509457679767048219"
     },
     "agent_channels": {
-      "nexus": "GENERAL_CHANNEL_ID",
+      "nexus": "1509457679767048219",
       "press": "PR_CHANNEL_ID",
       "echo": "SOCIAL_CHANNEL_ID",
       "shield": "ALERT_CHANNEL_ID",
-      "signal": "PR_CHANNEL_ID"
+      "signal": "PR_CHANNEL_ID",
+      "aware": "1509457679767048219"
     },
-    "guild_id": "YOUR_GUILD_ID_HERE",
+    "guild_id": "1509457678890569940",
     "enabled": true
   },
   "mattermost": {
@@ -29,16 +32,17 @@
       "pr": "pr-team",
       "general": "town-square"
     },
-    "enabled": true
+    "enabled": false
   },
   "routing": {
-    "urgent": ["discord", "mattermost"],
-    "alert": ["discord", "mattermost"],
+    "urgent": ["discord"],
+    "alert": ["discord"],
     "info": ["discord"],
-    "digest": ["mattermost"],
+    "digest": ["discord"],
     "social": ["discord"],
-    "pr": ["discord", "mattermost"],
-    "heartbeat_critical": ["discord", "mattermost"],
+    "pr": ["discord"],
+    "aware": ["discord"],
+    "heartbeat_critical": ["discord"],
     "heartbeat_warning": ["discord"]
   },
   "agents": {
