@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projex — Command Center</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --surface2: #1a1a26;
+            --border: #2a2a3a;
+            --text: #e8e8f0;
+            --text-dim: #8888aa;
+            --accent: #6c63ff;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --orange: #f97316;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo .tag {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            background: var(--accent);
+            color: #000;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .header-actions .pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Tab navigation */
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
+
+        .tab {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .tab:hover { background: var(--surface2); color: var(--text); }
+        .tab.active { background: var(--surface2); color: var(--accent); border-color: var(--accent); }
+
+        /* Grid layout */
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover { border-color: var(--accent); }
+
+        .card-title {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .stat-change.up { color: var(--green); }
+        .stat-change.down { color: var(--red); }
+        .stat-change.neutral { color: var(--text-dim); }
+
+        /* Status indicators */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.green { background: var(--green); }
+        .status-dot.yellow { background: var(--yellow); }
+        .status-dot.red { background: var(--red); }
+        .status-dot.blue { background: var(--blue); }
+
+        /* Lists */
+        .item-list {
+            list-style: none;
+        }
+
+        .item-list li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .item-list li:last-child { border-bottom: none; }
+
+        /* Progress bars */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--surface2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Kanban board */
+        .kanban {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .kanban-column {
+            background: var(--surface2);
+            border-radius: 10px;
+            padding: 0.75rem;
+            min-height: 200px;
+        }
+
+        .kanban-column h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kanban-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+
+        .kanban-card:hover { border-color: var(--accent); }
+
+        .kanban-card .title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .kanban-card .meta {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .priority-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.25rem;
+        }
+
+        .priority-dot.high { background: var(--red); }
+        .priority-dot.medium { background: var(--yellow); }
+        .priority-dot.low { background: var(--green); }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.35rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--surface);
+        }
+
+        .timeline-item .time {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .timeline-item .event {
+            font-size: 0.85rem;
+            margin-top: 0.15rem;
+        }
+
+        /* Quick actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .quick-action {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.8rem;
+        }
+
+        .quick-action:hover {
+            border-color: var(--accent);
+            background: var(--surface);
+        }
+
+        .quick-action .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Tab content */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body { padding: 0.75rem; }
+            .stat-value { font-size: 1.5rem; }
+            .kanban { grid-template-columns: 1fr; }
+        }
+
+        /* Auto-refresh indicator */
+        .refresh-info {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: right;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <h1>Projex</h1>
+            <span class="tag">Command Center</span>
+        </div>
+        <div class="header-actions">
+            <div class="pulse"></div>
+            <span style="font-size: 0.8rem; color: var(--text-dim);">Live</span>
+            <span id="clock" style="font-size: 0.8rem; color: var(--text-dim); margin-left: 0.5rem;"></span>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('overview')">📊 Overview</div>
+        <div class="tab" onclick="switchTab('system')">💓 System</div>
+        <div class="tab" onclick="switchTab('social')">📱 Social</div>
+        <div class="tab" onclick="switchTab('tasks')">✅ Tasks</div>
+        <div class="tab" onclick="switchTab('activity')">📋 Activity</div>
+        <div class="tab" onclick="switchTab('actions')">⚡ Actions</div>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="tab-overview" class="tab-content active">
+        <div class="grid grid-4" style="margin-bottom: 1.5rem;">
+            <div class="card">
+                <div class="card-title">💓 System Health</div>
+                <div class="stat-value" style="color: var(--green);">Healthy</div>
+                <div class="stat-change neutral">Last check: just now</div>
+            </div>
+            <div class="card">
+                <div class="card-title">🔀 Active Triggers</div>
+                <div class="stat-value" id="trigger-count">—</div>
+                <div class="stat-change neutral">Scheduled</div>
+            </div>
+            <div class="card">
+                <div class="card-title">🤖 Running Agents</div>
+                <div class="stat-value" id="agent-count">—</div>
+                <div class="stat-change neutral">Subagents active</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📱 Social Posts</div>
+                <div class="stat-value" id="post-count">—</div>
+                <div class="stat-change neutral">Scheduled</div>
+            </div>
+        </div>
+
+        <div class="grid grid-2">
+            <div class="card">
+                <div class="card-title">📊 Quick Social Metrics</div>
+                <div id="social-metrics" style="font-size: 0.85rem;">Loading...</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📋 Recent Activity</div>
+                <ul class="item-list" id="recent-activity">
+                    <li>⏳ Loading...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SYSTEM TAB -->
+    <div id="tab-system" class="tab-content">
+        <div class="grid grid-3" style="margin-bottom: 1.5rem;">
+            <div class="card">
+                <div class="card-title">💓 Heartbeat</div>
+                <div id="heartbeat-status" style="font-size: 0.85rem;">Checking...</div>
+            </div>
+            <div class="card">
+                <div class="card-title">🛡️ Recovery</div>
+                <div id="recovery-status" style="font-size: 0.85rem;">Checking...</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📜 Automations</div>
+                <div id="automation-count" style="font-size: 0.85rem;">Checking...</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">📈 System Timeline</div>
+            <div class="timeline" id="system-timeline">
+                <div class="timeline-item">
+                    <div class="time">Initializing...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOCIAL TAB -->
+    <div id="tab-social" class="tab-content">
+        <div class="grid grid-3" style="margin-bottom: 1.5rem;">
+            <div class="card">
+                <div class="card-title">🐦 Twitter/X</div>
+                <div id="twitter-stats" style="font-size: 0.85rem;">No data</div>
+            </div>
+            <div class="card">
+                <div class="card-title">💼 LinkedIn</div>
+                <div id="linkedin-stats" style="font-size: 0.85rem;">No data</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📷 Instagram</div>
+                <div id="instagram-stats" style="font-size: 0.85rem;">No data</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">📅 Upcoming Posts</div>
+            <ul class="item-list" id="upcoming-posts">
+                <li>⏳ Loading...</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- TASKS TAB (Project Management / Kanban) -->
+    <div id="tab-tasks" class="tab-content">
+        <div class="kanban" id="kanban-board">
+            <div class="kanban-column">
+                <h3>📋 Backlog <span id="backlog-count">0</span></h3>
+                <div id="backlog-cards"></div>
+            </div>
+            <div class="kanban-column">
+                <h3>🔧 In Progress <span id="progress-count">0</span></h3>
+                <div id="progress-cards"></div>
+            </div>
+            <div class="kanban-column">
+                <h3>👀 Review <span id="review-count">0</span></h3>
+                <div id="review-cards"></div>
+            </div>
+            <div class="kanban-column">
+                <h3>✅ Done <span id="done-count">0</span></h3>
+                <div id="done-cards"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTIVITY TAB -->
+    <div id="tab-activity" class="tab-content">
+        <div class="card">
+            <div class="card-title">📋 Activity Feed</div>
+            <div class="timeline" id="activity-feed">
+                <div class="timeline-item">
+                    <div class="time">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTIONS TAB -->
+    <div id="tab-actions" class="tab-content">
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-title">⚡ Quick Actions</div>
+            <div class="quick-actions">
+                <div class="quick-action" onclick="runAction('heartbeat')">
+                    <div class="icon">💓</div>
+                    Health Check
+                </div>
+                <div class="quick-action" onclick="runAction('social-alerts')">
+                    <div class="icon">🔔</div>
+                    Social Alerts
+                </div>
+                <div class="quick-action" onclick="runAction('daily-report')">
+                    <div class="icon">📊</div>
+                    Daily Report
+                </div>
+                <div class="quick-action" onclick="runAction('trigger-check')">
+                    <div class="icon">🔀</div>
+                    Fire Triggers
+                </div>
+                <div class="quick-action" onclick="runAction('agent-status')">
+                    <div class="icon">🤖</div>
+                    Agent Status
+                </div>
+                <div class="quick-action" onclick="runAction('recovery-check')">
+                    <div class="icon">🛡️</div>
+                    Recovery Check
+                </div>
+                <div class="quick-action" onclick="runAction('social-stats')">
+                    <div class="icon">📱</div>
+                    Social Stats
+                </div>
+                <div class="quick-action" onclick="location.reload()">
+                    <div class="icon">🔄</div>
+                    Refresh All
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="refresh-info">Auto-refreshes every 30 seconds · Last refresh: <span id="last-refresh">—</span></div>
+
+    <script>
+        // Tab switching
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Clock
+        function updateClock() {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Simulated dashboard data (in production, this would fetch from local API)
+        const taskData = [
+            { title: "Voice dictation mode", status: "progress", priority: "high" },
+            { title: "Social API connectors", status: "backlog", priority: "high" },
+            { title: "Dashboard auto-refresh", status: "review", priority: "medium" },
+            { title: "Heartbeat daemon", status: "done", priority: "high" },
+            { title: "Trigger engine", status: "done", priority: "high" },
+            { title: "Subagent spawner", status: "done", priority: "high" },
+            { title: "Daily report generator", status: "done", priority: "high" },
+            { title: "Image generation", status: "backlog", priority: "low" },
+            { title: "Video production", status: "backlog", priority: "low" },
+            { title: "Credential management", status: "backlog", priority: "medium" },
+            { title: "Activity logging", status: "done", priority: "high" },
+            { title: "Recovery system", status: "done", priority: "high" },
+        ];
+
+        function renderKanban() {
+            const columns = { backlog: [], progress: [], review: [], done: [] };
+            taskData.forEach(task => columns[task.status].push(task));
+
+            ['backlog', 'progress', 'review', 'done'].forEach(col => {
+                const container = document.getElementById(col + '-cards');
+                const counter = document.getElementById(col + '-count');
+                counter.textContent = columns[col].length;
+                container.innerHTML = columns[col].map(task => `
+                    <div class="kanban-card">
+                        <div class="title"><span class="priority-dot ${task.priority}"></span>${task.title}</div>
+                        <div class="meta">${task.priority} priority</div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        function renderActivity() {
+            const activities = [
+                { time: "Just now", event: "System health check passed" },
+                { time: "2 min ago", event: "Trigger fired: daily_report" },
+                { time: "15 min ago", event: "Social post scheduled on Twitter" },
+                { time: "1 hour ago", event: "Heartbeat daemon started" },
+                { time: "2 hours ago", event: "New checkpoint: daily_report" },
+            ];
+
+            const container = document.getElementById('activity-feed');
+            const recent = document.getElementById('recent-activity');
+
+            container.innerHTML = activities.map(a => `
+                <div class="timeline-item">
+                    <div class="time">${a.time}</div>
+                    <div class="event">${a.event}</div>
+                </div>
+            `).join('');
+
+            recent.innerHTML = activities.slice(0, 4).map(a => `
+                <li><span class="status-dot green"></span>${a.event}</li>
+            `).join('');
+        }
+
+        function loadStats() {
+            // Count files for automation count
+            document.getElementById('automation-count').innerHTML = `
+                <div class="stat-value">24</div>
+                <div class="stat-change neutral">scripts across 7 directories</div>
+            `;
+
+            document.getElementById('heartbeat-status').innerHTML = `
+                <div class="status"><span class="status-dot green"></span> System healthy</div>
+                <div style="margin-top:0.5rem; font-size:0.8rem;">
+                    <div>✓ Disk OK</div>
+                    <div>✓ Memory OK</div>
+                    <div>✓ Processes running</div>
+                </div>
+            `;
+
+            document.getElementById('recovery-status').innerHTML = `
+                <div class="status"><span class="status-dot green"></span> No active issues</div>
+                <div style="margin-top:0.5rem; font-size:0.8rem;">
+                    <div>✓ All checkpoints valid</div>
+                    <div>✓ No stale processes</div>
+                </div>
+            `;
+
+            document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+        }
+
+        function runAction(action) {
+            alert(`Action "${action}" would trigger the corresponding automation. In production, this calls the Pi agent via fetch or shell command.`);
+        }
+
+        // Initialize
+        renderKanban();
+        renderActivity();
+        loadStats();
+
+        // Auto-refresh
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>

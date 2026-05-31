@@ -1,0 +1,1 @@
+{"category": "general", "title": "Projex Test", "body": "Test message from Projex agent. If you see this, the communication bridge is working.", "urgency": "info", "platforms": ["discord"], "timestamp": "2026-05-29T05:39:14.998861+00:00", "queued_at": "2026-05-29T05:39:15.000233+00:00", "retries": 0}

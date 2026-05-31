@@ -1,0 +1,229 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Profile",
+  "description": "Configuration schema for a self-contained agent profile",
+  "type": "object",
+  "required": ["id", "name", "role", "system_prompt", "personality", "memory"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique lowercase identifier for the agent (e.g., 'nexus', 'press')"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name for the agent"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "role": {
+      "type": "string",
+      "description": "High-level role description"
+    },
+    "system_prompt": {
+      "type": "string",
+      "description": "Path to the system prompt markdown file"
+    },
+    "personality": {
+      "type": "object",
+      "required": ["traits", "communication_style", "decision_framework"],
+      "properties": {
+        "traits": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Key personality traits"
+        },
+        "communication_style": {
+          "type": "string",
+          "description": "How the agent communicates (tone, format, length)"
+        },
+        "decision_framework": {
+          "type": "string",
+          "description": "How the agent makes decisions and prioritizes"
+        },
+        "perspectives": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Lenses through which the agent views problems"
+        },
+        "core_beliefs": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Fundamental principles the agent operates on"
+        }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "required": ["type", "path"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["jsonl", "sqlite", "vector", "hybrid"],
+          "description": "Memory storage type"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path to memory directory (relative to profile)"
+        },
+        "max_entries": {
+          "type": "integer",
+          "default": 1000,
+          "description": "Maximum memory entries before rotation"
+        },
+        "retention_days": {
+          "type": "integer",
+          "default": 90,
+          "description": "Days to retain memory entries"
+        },
+        "summary_interval": {
+          "type": "integer",
+          "default": 100,
+          "description": "Generate summary every N entries"
+        },
+        "categories": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Memory categories (e.g., decisions, context, relationships)"
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "enabled": {"type": "boolean", "default": true},
+          "config": {"type": "object"}
+        }
+      },
+      "description": "Skills available to this agent"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"type": "string", "enum": ["script", "api", "builtin", "extension"]},
+          "path": {"type": "string"},
+          "enabled": {"type": "boolean", "default": true},
+          "permissions": {
+            "type": "object",
+            "properties": {
+              "filesystem": {"type": "boolean"},
+              "network": {"type": "boolean"},
+              "execution": {"type": "boolean"}
+            }
+          }
+        }
+      },
+      "description": "Tools available to this agent"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Paths to agent-specific extension files"
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "handler": {"type": "string"},
+          "args": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "description": "Custom commands for this agent"
+    },
+    "processing": {
+      "type": "object",
+      "properties": {
+        "provider": {"type": "string", "default": "openrouter"},
+        "model": {"type": "string"},
+        "thinking_level": {"type": "string", "enum": ["low", "medium", "high"]},
+        "temperature": {"type": "number", "default": 0.7},
+        "max_tokens": {"type": "integer", "default": 4096},
+        "context_window": {"type": "integer", "default": 8192},
+        "rate_limit": {
+          "type": "object",
+          "properties": {
+            "requests_per_minute": {"type": "integer"},
+            "tokens_per_minute": {"type": "integer"}
+          }
+        }
+      },
+      "description": "LLM processing configuration"
+    },
+    "deployment": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["local", "container", "modal", "lambda"],
+          "default": "local"
+        },
+        "resource_limits": {
+          "type": "object",
+          "properties": {
+            "memory_mb": {"type": "integer"},
+            "cpu_cores": {"type": "number"},
+            "gpu": {"type": "boolean"},
+            "timeout_seconds": {"type": "integer"}
+          }
+        },
+        "scaling": {
+          "type": "object",
+          "properties": {
+            "min_instances": {"type": "integer", "default": 0},
+            "max_instances": {"type": "integer", "default": 1},
+            "scale_on": {"type": "string", "enum": ["queue", "cron", "webhook"]}
+          }
+        }
+      },
+      "description": "Deployment configuration for future serverless migration"
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "reports_to": {"type": "string", "description": "Agent ID this agent reports to"},
+        "collaborates_with": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Agent IDs this agent collaborates with"
+        },
+        "delegates_to": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Agent IDs this agent can delegate tasks to"
+        }
+      },
+      "description": "Inter-agent relationships"
+    },
+    "routing": {
+      "type": "object",
+      "properties": {
+        "triggers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Keywords or patterns that trigger this agent"
+        },
+        "channels": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Communication channels this agent monitors"
+        },
+        "auto_respond": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether agent auto-responds to matching triggers"
+        }
+      },
+      "description": "Routing rules for task assignment"
+    }
+  }
+}

@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projex — Agent Roadmap</title>
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --surface: #1a1a1a;
+            --surface2: #242424;
+            --border: #333;
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --accent: #6c63ff;
+            --accent-dim: #4a44b8;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --orange: #f97316;
+            --purple: #a855f7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .meta-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--surface2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--green));
+            transition: width 0.3s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+
+        /* Phase sections */
+        .phase {
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .phase-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .phase-header:hover {
+            background: var(--surface);
+        }
+
+        .phase-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .phase-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .phase-1 .phase-badge { background: var(--green); color: #000; }
+        .phase-2 .phase-badge { background: var(--blue); color: #000; }
+        .phase-3 .phase-badge { background: var(--yellow); color: #000; }
+        .phase-4 .phase-badge { background: var(--orange); color: #000; }
+        .phase-5 .phase-badge { background: var(--purple); color: #fff; }
+        .phase-future .phase-badge { background: var(--border); color: var(--text-dim); }
+
+        .phase-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .phase-body {
+            padding: 0 1.5rem 1.5rem;
+            display: none;
+        }
+
+        .phase.open .phase-body {
+            display: block;
+        }
+
+        .phase.open .phase-toggle {
+            transform: rotate(90deg);
+        }
+
+        .phase-toggle {
+            transition: transform 0.2s ease;
+            color: var(--text-dim);
+        }
+
+        /* Task items */
+        .task {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--surface2);
+        }
+
+        .task:last-child {
+            border-bottom: none;
+        }
+
+        .task-check {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .task.done .task-check {
+            background: var(--green);
+            border-color: var(--green);
+            color: #000;
+        }
+
+        .task.in-progress .task-check {
+            border-color: var(--yellow);
+            background: var(--yellow);
+            color: #000;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .task.done .task-title {
+            text-decoration: line-through;
+            color: var(--text-dim);
+        }
+
+        .task-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .task-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .task-tag {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            background: var(--surface2);
+            color: var(--text-dim);
+        }
+
+        .task-tag.extension { background: #3b82f622; color: var(--blue); }
+        .task-tag.automation { background: #22c55e22; color: var(--green); }
+        .task-tag.infrastructure { background: #f9731622; color: var(--orange); }
+        .task-tag.ui { background: #a855f722; color: var(--purple); }
+        .task-tag.security { background: #ef444422; color: var(--red); }
+
+        /* Priority dots */
+        .priority {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+
+        .priority.high { background: var(--red); }
+        .priority.medium { background: var(--yellow); }
+        .priority.low { background: var(--text-dim); }
+
+        /* Footer */
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        /* Summary cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .meta { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Projex — Agent Roadmap</h1>
+        <p class="subtitle">General Purpose + PR Assistant with Automation Infrastructure</p>
+        <div class="meta">
+            <div class="meta-item">
+                <span class="dot" style="background: var(--green)"></span>
+                Created: 2026-05-27
+            </div>
+            <div class="meta-item">
+                <span class="dot" style="background: var(--blue)"></span>
+                Platform: Pi + Termux
+            </div>
+            <div class="meta-item">
+                <span class="dot" style="background: var(--purple)"></span>
+                5 Phases + Future
+            </div>
+        </div>
+    </header>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <div class="summary-number" style="color: var(--green)">1</div>
+            <div class="summary-label">Phase Complete</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-number" style="color: var(--blue)">34</div>
+            <div class="summary-label">Total Tasks</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-number" style="color: var(--yellow)">12</div>
+            <div class="summary-label">In Progress</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-number" style="color: var(--text-dim)">21</div>
+            <div class="summary-label">Planned</div>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong>Overall Progress</strong>
+            <span style="color: var(--green); font-weight: 600;">12%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 12%"></div>
+        </div>
+        <div class="progress-stats">
+            <span>4 of 34 tasks done</span>
+            <span>~5 phases remaining</span>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background: var(--red)"></div> High Priority</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--yellow)"></div> Medium Priority</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--text-dim)"></div> Low Priority</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--blue)"></div> Extension</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--green)"></div> Automation</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--orange)"></div> Infrastructure</div>
+    </div>
+
+    <!-- PHASE 1: Foundation (Done) -->
+    <div class="phase phase-1 open">
+        <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="phase-title">
+                <span class="phase-badge">Phase 1</span>
+                <span class="phase-name">Foundation & Core Setup</span>
+            </div>
+            <span class="phase-toggle">▶</span>
+        </div>
+        <div class="phase-body">
+            <div class="task done">
+                <div class="task-check">✓</div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Pi Agent Configuration</div>
+                    <div class="task-desc">AGENTS.md with general + PR agent capabilities, commands, and guidelines</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task done">
+                <div class="task-check">✓</div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">PR Commands Extension</div>
+                    <div class="task-desc">10 slash commands: release, pitch, crisis, messages, campaign, social, qa, monitor, stakeholder, strategy</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task done">
+                <div class="task-check">✓</div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Automations Framework</div>
+                    <div class="task-desc">Organized scripts in pr/, general/, utils/ with README and conventions</div>
+                    <div class="task-tags">
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task done">
+                <div class="task-check">✓</div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">12 Base Automation Scripts</div>
+                    <div class="task-desc">Press release drafts, media monitoring, sentiment analysis, social drafts, crisis checklist, media contacts, notes, research, todo, logger, file utils</div>
+                    <div class="task-tags">
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 2: Voice & Notifications -->
+    <div class="phase phase-2">
+        <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="phase-title">
+                <span class="phase-badge">Phase 2</span>
+                <span class="phase-name">Voice I/O & Notification System</span>
+            </div>
+            <span class="phase-toggle">▶</span>
+        </div>
+        <div class="phase-body">
+            <div class="task in-progress">
+                <div class="task-check">~</div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Speech-to-Text (STT) Integration</div>
+                    <div class="task-desc">Use Termux:API speech recognition or Whisper.cpp for local voice input. Create /voice command that records and transcribes.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Text-to-Speech (TTS) Integration</div>
+                    <div class="task-desc">Use termux-tts or pico2wave/espeak for reading responses aloud. Toggle via /tts on/off.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Enhanced Notification System</div>
+                    <div class="task-desc">Structured notifications with categories (urgent, info, alert), action buttons, LED patterns, and notification history log.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Voice Commands Extension</div>
+                    <div class="task-desc">/voice record, /voice transcribe, /voice speak, /voice dictation — full voice workflow integration.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Notification Preferences</div>
+                    <div class="task-desc">Quiet hours, priority filtering, channel routing (notification vs sound vs vibration), and digest mode.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 3: Social Media & Scheduling -->
+    <div class="phase phase-3">
+        <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="phase-title">
+                <span class="phase-badge">Phase 3</span>
+                <span class="phase-name">Social Media Tracking & Scheduling</span>
+            </div>
+            <span class="phase-toggle">▶</span>
+        </div>
+        <div class="phase-body">
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Social Media Scheduler Extension</div>
+                    <div class="task-desc">Queue posts for X, LinkedIn, Facebook, Instagram with scheduled publish times. Store in JSON queue, execute via cron/termux-job-scheduler.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Social Media Tracker</div>
+                    <div class="task-desc">Track mentions, engagement metrics, follower growth, and content performance across platforms. Store in SQLite database.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Content Calendar</div>
+                    <div class="task-desc">Visual calendar view of scheduled posts, campaigns, and PR events. Export to ICS format.</div>
+                    <div class="task-tags">
+                        <span class="task-tag ui">ui</span>
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">API Integration Layer</div>
+                    <div class="task-desc">OAuth flow and API connectors for Twitter/X, LinkedIn, Facebook. Store tokens securely in encrypted files.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                        <span class="task-tag security">security</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Engagement Alerts</div>
+                    <div class="task-desc">Notify on high-engagement posts, negative sentiment spikes, trending mentions, and influencer interactions.</div>
+                    <div class="task-tags">
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority low"></div>
+                <div class="task-content">
+                    <div class="task-title">Auto-Response Suggestions</div>
+                    <div class="task-desc">AI-generated response suggestions for mentions, comments, and DMs. Review before sending.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 4: Heartbeat & Triggers -->
+    <div class="phase phase-4">
+        <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="phase-title">
+                <span class="phase-badge">Phase 4</span>
+                <span class="phase-name">Heartbeat, Triggers & Subagent Orchestration</span>
+            </div>
+            <span class="phase-toggle">▶</span>
+        </div>
+        <div class="phase-body">
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Heartbeat Monitor</div>
+                    <div class="task-desc">Periodic health check system that verifies all processes, extensions, and automations are running. Log heartbeats, detect failures, alert on missed beats.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Trigger Engine</div>
+                    <div class="task-desc">Event-driven system: file changes, time-based, webhook, API response, notification trigger → execute automation or spawn subagent. Configurable via triggers.json.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Subagent Spawner</div>
+                    <div class="task-desc">Spawn isolated Pi instances (via RPC or SDK) for background jobs: monitoring, report generation, data processing. Manage lifecycle and collect results.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Job Queue System</div>
+                    <div class="task-desc">Persistent job queue with priorities, retries, timeouts, and dependency chains. Backed by SQLite or JSONL.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Process Watcher</div>
+                    <div class="task-desc">Monitor running automations and subagents. Auto-restart on crash, track resource usage, log execution time.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Cron Integration</div>
+                    <div class="task-desc">Use termux-job-scheduler for time-based triggers. Schedule daily reports, hourly checks, weekly summaries.</div>
+                    <div class="task-tags">
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 5: Observability & Recovery -->
+    <div class="phase phase-5">
+        <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="phase-title">
+                <span class="phase-badge">Phase 5</span>
+                <span class="phase-name">Observability, Recovery & Daily Reporting</span>
+            </div>
+            <span class="phase-toggle">▶</span>
+        </div>
+        <div class="phase-body">
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Activity Tracker</div>
+                    <div class="task-desc">Log all agent actions, tool calls, command executions, and automation runs. Structured JSONL logs with search and filtering.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Recovery System</div>
+                    <div class="task-desc">Auto-detect failures, rollback to last known good state, restore interrupted jobs, maintain checkpoint files for long-running tasks.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Daily Report Generator</div>
+                    <div class="task-desc">Compile daily digest: completed tasks, pending items, social metrics, media coverage, system health, upcoming schedule. Deliver via notification or email.</div>
+                    <div class="task-tags">
+                        <span class="task-tag automation">automation</span>
+                        <span class="task-tag ui">ui</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Dashboard & Project Management View</div>
+                    <div class="task-desc">Interactive HTML dashboard with: system status, active jobs, social metrics, task board (Kanban), recent activity, upcoming schedule, quick actions.</div>
+                    <div class="task-tags">
+                        <span class="task-tag ui">ui</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Error Budget & Alerting</div>
+                    <div class="task-desc">Track error rates, set thresholds, escalate alerts. Distinguish between transient and permanent failures.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Metrics & Analytics</div>
+                    <div class="task-desc">Track agent usage, task completion rates, automation frequency, response times. Export to CSV/JSON for external analysis.</div>
+                    <div class="task-tags">
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FUTURE: Media Generation -->
+    <div class="phase phase-future">
+        <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="phase-title">
+                <span class="phase-badge">Future</span>
+                <span class="phase-name">Media Generation (Images, Video, Audio)</span>
+            </div>
+            <span class="phase-toggle">▶</span>
+        </div>
+        <div class="phase-body">
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority low"></div>
+                <div class="task-content">
+                    <div class="task-title">Image Generation</div>
+                    <div class="task-desc">Integrate with Stable Diffusion or API-based generators for social media graphics, press release images, and campaign visuals.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority low"></div>
+                <div class="task-content">
+                    <div class="task-title">Video Generation</div>
+                    <div class="task-desc">Automated video clips from text briefs, social media video posts, animated infographics.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority low"></div>
+                <div class="task-content">
+                    <div class="task-title">Audio Production</div>
+                    <div class="task-desc">Podcast clips, voice-over generation, audio ads, and sound bites from press releases.</div>
+                    <div class="task-tags">
+                        <span class="task-tag extension">extension</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority low"></div>
+                <div class="task-content">
+                    <div class="task-title">Brand Asset Manager</div>
+                    <div class="task-desc">Store, organize, and retrieve brand assets (logos, colors, fonts, templates) for consistent media generation.</div>
+                    <div class="task-tags">
+                        <span class="task-tag automation">automation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sandboxing (cross-cutting) -->
+    <div class="phase phase-4">
+        <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="phase-title">
+                <span class="phase-badge">Cross-Cutting</span>
+                <span class="phase-name">Environment Sandboxing & Security</span>
+            </div>
+            <span class="phase-toggle">▶</span>
+        </div>
+        <div class="phase-body">
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Script Execution Sandbox</div>
+                    <div class="task-desc">Run automations in isolated environments with restricted filesystem access, network policies, and resource limits. Use proot or chroot where possible.</div>
+                    <div class="task-tags">
+                        <span class="task-tag security">security</span>
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority high"></div>
+                <div class="task-content">
+                    <div class="task-title">Credential Management</div>
+                    <div class="task-desc">Secure storage for API keys, OAuth tokens, and credentials. Encrypted at rest, loaded only when needed.</div>
+                    <div class="task-tags">
+                        <span class="task-tag security">security</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Permission Gates</div>
+                    <div class="task-desc">Require confirmation for destructive actions, API calls with costs, and external communications. Configurable per-script and per-action.</div>
+                    <div class="task-tags">
+                        <span class="task-tag security">security</span>
+                    </div>
+                </div>
+            </div>
+            <div class="task">
+                <div class="task-check"></div>
+                <div class="priority medium"></div>
+                <div class="task-content">
+                    <div class="task-title">Audit Trail</div>
+                    <div class="task-desc">Immutable log of all agent decisions, tool executions, and automation runs. Tamper-evident for compliance.</div>
+                    <div class="task-tags">
+                        <span class="task-tag security">security</span>
+                        <span class="task-tag infrastructure">infrastructure</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Projex Roadmap — Generated 2026-05-27</p>
+        <p>Keep this file updated as tasks progress. Check boxes manually or use /pr todo to generate status reports.</p>
+    </footer>
+
+    <script>
+        // Auto-open first phase
+        document.addEventListener('DOMContentLoaded', () => {
+            const phases = document.querySelectorAll('.phase');
+            phases.forEach(p => {
+                const badge = p.querySelector('.phase-badge');
+                if (badge && badge.textContent === 'Phase 1') {
+                    p.classList.add('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

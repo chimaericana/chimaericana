@@ -1,0 +1,23 @@
+{
+  "agents": [
+    {
+      "id": "agent_20260527224123_24175",
+      "type": "report",
+      "prompt": "Test report",
+      "status": "running",
+      "pid": 24176,
+      "started_at": "2026-05-27T22:41:23.107666",
+      "completed_at": null,
+      "output_file": "automations/agents/results/agent_20260527224123_24175.json",
+      "timeout": 300,
+      "exit_code": null,
+      "error": null
+    }
+  ],
+  "limits": {
+    "timeout": 300,
+    "max_output_kb": 512,
+    "max_memory_mb": 256,
+    "max_concurrent": 3
+  }
+}

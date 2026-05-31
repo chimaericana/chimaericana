@@ -1,0 +1,53 @@
+{
+  "id": "<agent-id>",
+  "name": "<Agent Name>",
+  "version": "1.0.0",
+  "role": "<Role description>",
+  "system_prompt": "system_prompt.md",
+  "personality": {
+    "traits": ["trait1", "trait2", "trait3"],
+    "communication_style": "How the agent communicates",
+    "decision_framework": "How the agent makes decisions",
+    "perspectives": ["Lens 1", "Lens 2"],
+    "core_beliefs": ["Belief 1", "Belief 2"]
+  },
+  "memory": {
+    "type": "hybrid",
+    "path": "memory",
+    "max_entries": 500,
+    "retention_days": 90,
+    "summary_interval": 50,
+    "categories": ["decisions", "context", "relationships"]
+  },
+  "skills": [
+    {"name": "brainstorming", "enabled": true},
+    {"name": "planning", "enabled": true},
+    {"name": "research", "enabled": true}
+  ],
+  "tools": [],
+  "extensions": [],
+  "commands": [],
+  "processing": {
+    "provider": "openrouter",
+    "model": "z-ai/glm-4.5-air:free",
+    "thinking_level": "medium",
+    "temperature": 0.5,
+    "max_tokens": 4096,
+    "context_window": 8192
+  },
+  "deployment": {
+    "type": "local",
+    "resource_limits": {"memory_mb": 64, "cpu_cores": 0.5, "timeout_seconds": 30},
+    "scaling": {"min_instances": 0, "max_instances": 1, "scale_on": "queue"}
+  },
+  "relationships": {
+    "reports_to": null,
+    "collaborates_with": [],
+    "delegates_to": []
+  },
+  "routing": {
+    "triggers": [],
+    "channels": ["discord"],
+    "auto_respond": false
+  }
+}

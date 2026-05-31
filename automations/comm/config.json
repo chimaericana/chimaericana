@@ -1,0 +1,84 @@
+{
+  "discord": {
+    "token": "YOUR_DISCORD_BOT_TOKEN_HERE",
+    "channels": {
+      "alerts": "ALERT_CHANNEL_ID",
+      "reports": "REPORT_CHANNEL_ID",
+      "social": "SOCIAL_CHANNEL_ID",
+      "pr": "PR_CHANNEL_ID",
+      "general": "GENERAL_CHANNEL_ID"
+    },
+    "agent_channels": {
+      "nexus": "GENERAL_CHANNEL_ID",
+      "press": "PR_CHANNEL_ID",
+      "echo": "SOCIAL_CHANNEL_ID",
+      "shield": "ALERT_CHANNEL_ID",
+      "signal": "PR_CHANNEL_ID"
+    },
+    "guild_id": "YOUR_GUILD_ID_HERE",
+    "enabled": true
+  },
+  "mattermost": {
+    "url": "https://your-mattermost-server.com",
+    "token": "YOUR_MATTERMOST_BOT_TOKEN_HERE",
+    "webhook_url": "https://your-mattermost-server.com/hooks/YOUR_WEBHOOK_ID",
+    "channels": {
+      "alerts": "alerts",
+      "reports": "town-square",
+      "social": "social-media",
+      "pr": "pr-team",
+      "general": "town-square"
+    },
+    "enabled": true
+  },
+  "routing": {
+    "urgent": ["discord", "mattermost"],
+    "alert": ["discord", "mattermost"],
+    "info": ["discord"],
+    "digest": ["mattermost"],
+    "social": ["discord"],
+    "pr": ["discord", "mattermost"],
+    "heartbeat_critical": ["discord", "mattermost"],
+    "heartbeat_warning": ["discord"]
+  },
+  "agents": {
+    "enabled": true,
+    "auto_route": true,
+    "response_timeout_seconds": 30,
+    "queue_check_interval_seconds": 10,
+    "max_concurrent_agents": 3,
+    "agents": {
+      "nexus": {
+        "enabled": true,
+        "auto_respond": true
+      },
+      "press": {
+        "enabled": true,
+        "auto_respond": true
+      },
+      "echo": {
+        "enabled": true,
+        "auto_respond": true
+      },
+      "shield": {
+        "enabled": true,
+        "auto_respond": true
+      },
+      "signal": {
+        "enabled": true,
+        "auto_respond": true
+      }
+    }
+  },
+  "queue": {
+    "enabled": true,
+    "max_retries": 3,
+    "retry_delay_seconds": 30,
+    "max_queue_size": 100
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "automations/comm/bot.log",
+    "max_size_mb": 5
+  }
+}

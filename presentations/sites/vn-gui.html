@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Voice Note Player</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --primary: #e94560;
+    --text: #eee;
+    --muted: #888;
+    --accent: #0f3460;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    user-select: none;
+  }
+  h1 { font-size: 1.4rem; margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
+  .now-playing {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px 20px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .track-name { font-size: 1rem; font-weight: 600; margin-bottom: 4px; word-break: break-all; }
+  .track-info { font-size: 0.75rem; color: var(--muted); }
+  
+  /* Waveform visualization */
+  .waveform {
+    width: 100%;
+    max-width: 400px;
+    height: 80px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    position: relative;
+    background: var(--surface);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .waveform canvas { width: 100%; height: 100%; }
+  
+  /* Scrubber */
+  .scrubber-container {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 16px;
+  }
+  .time-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .scrubber {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--accent);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+  }
+  .scrubber::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(233,69,96,0.5);
+  }
+  
+  /* Controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .ctrl-btn {
+    background: var(--surface);
+    border: none;
+    color: var(--text);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .ctrl-btn:active { transform: scale(0.92); background: var(--accent); }
+  .ctrl-btn.play {
+    width: 64px;
+    height: 64px;
+    background: var(--primary);
+    font-size: 1.5rem;
+  }
+  .ctrl-btn.play:active { background: #c73a52; }
+  
+  /* Speed control */
+  .speed-section {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .speed-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .speed-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .speed-btn {
+    background: var(--accent);
+    border: 2px solid transparent;
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .speed-btn:active { transform: scale(0.95); }
+  .speed-btn.active {
+    border-color: var(--primary);
+    background: rgba(233,69,96,0.2);
+    color: var(--primary);
+  }
+  
+  /* File list */
+  .file-section {
+    width: 100%;
+    max-width: 400px;
+  }
+  .file-section h3 {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .file-item {
+    background: var(--surface);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .file-item:active { background: var(--accent); }
+  .file-item.active { border-left: 3px solid var(--primary); }
+  .file-item .dur { color: var(--muted); font-size: 0.75rem; }
+  
+  /* Scrub buttons */
+  .scrub-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .scrub-btn {
+    background: var(--accent);
+    border: none;
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .scrub-btn:active { transform: scale(0.95); background: var(--primary); }
+</style>
+</head>
+<body>
+
+<h1>🎵 Voice Note Player</h1>
+<p class="subtitle">Local voice note library</p>
+
+<div class="now-playing">
+  <div class="track-name" id="trackName">No track selected</div>
+  <div class="track-info" id="trackInfo">—</div>
+</div>
+
+<div class="waveform" id="waveform">
+  <canvas id="waveCanvas"></canvas>
+</div>
+
+<div class="scrubber-container">
+  <div class="time-display">
+    <span id="currentTime">0:00.0</span>
+    <span id="totalTime">0:00.0</span>
+  </div>
+  <input type="range" class="scrubber" id="scrubber" min="0" max="100" value="0" step="0.1">
+</div>
+
+<div class="scrub-btns">
+  <button class="scrub-btn" onclick="seek(-30)">⏪ -30s</button>
+  <button class="scrub-btn" onclick="seek(-10)">◀ -10s</button>
+  <button class="scrub-btn" onclick="seek(10)">+10s ▶</button>
+  <button class="scrub-btn" onclick="seek(30)">+30s ⏩</button>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" onclick="restart()" title="Restart">⏮</button>
+  <button class="ctrl-btn play" id="playBtn" onclick="togglePlay()">▶</button>
+  <button class="ctrl-btn" onclick="stop()" title="Stop">⏹</button>
+</div>
+
+<div class="speed-section">
+  <div class="speed-label">Playback Speed</div>
+  <div class="speed-buttons">
+    <button class="speed-btn" onclick="setSpeed(1)">1x</button>
+    <button class="speed-btn active" onclick="setSpeed(1.5)">1.5x</button>
+    <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+    <button class="speed-btn" onclick="setSpeed(0.75)">0.75x</button>
+  </div>
+</div>
+
+<div class="file-section">
+  <h3>📁 Available Voice Notes</h3>
+  <div class="file-list" id="fileList">Loading...</div>
+</div>
+
+<script>
+  let audio = null;
+  let currentSpeed = 1.5;
+  let currentFile = null;
+  let files = [];
+
+  // Load file list
+  async function loadFiles() {
+    try {
+      const res = await fetch('/api/files');
+      files = await res.json();
+      renderFileList();
+    } catch(e) {
+      document.getElementById('fileList').innerHTML = '<div style="color:var(--muted)">Server not running — use: python vn-gui.py</div>';
+    }
+  }
+
+  function renderFileList() {
+    const el = document.getElementById('fileList');
+    if (files.length === 0) {
+      el.innerHTML = '<div style="color:var(--muted);padding:16px">No voice notes found</div>';
+      return;
+    }
+    el.innerHTML = files.map(f => `
+      <div class="file-item ${f === currentFile ? 'active' : ''}" onclick="loadTrack('${f}')">
+        <span>🎙️ ${f.replace(/.*\//, '')}</span>
+        <span class="dur">${f.endsWith('_1.5x') ? '1.5x' : f.endsWith('_2x') ? '2x' : ''}</span>
+      </div>
+    `).join('');
+  }
+
+  async function loadTrack(filename) {
+    currentFile = filename;
+    if (audio) { audio.pause(); audio = null; }
+    audio = new Audio('/api/file/' + encodeURIComponent(filename));
+    audio.playbackRate = currentSpeed;
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('loadedmetadata', () => {
+      document.getElementById('totalTime').textContent = fmtTime(audio.duration / currentSpeed);
+    });
+    audio.addEventListener('ended', () => {
+      document.getElementById('playBtn').textContent = '▶';
+    });
+    
+    document.getElementById('trackName').textContent = filename.replace(/.*\//, '');
+    document.getElementById('trackInfo').textContent = `Speed: ${currentSpeed}x`;
+    renderFileList();
+    audio.play();
+    document.getElementById('playBtn').textContent = '⏸';
+  }
+
+  function togglePlay() {
+    if (!audio) return;
+    if (audio.paused) { audio.play(); document.getElementById('playBtn').textContent = '⏸'; }
+    else { audio.pause(); document.getElementById('playBtn').textContent = '▶'; }
+  }
+
+  function stop() {
+    if (audio) { audio.pause(); audio.currentTime = 0; }
+    document.getElementById('playBtn').textContent = '▶';
+    document.getElementById('scrubber').value = 0;
+    updateTimeDisplay();
+  }
+
+  function restart() {
+    if (audio) { audio.currentTime = 0; }
+    updateTimeDisplay();
+  }
+
+  function seek(seconds) {
+    if (!audio) return;
+    audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
+    updateTimeDisplay();
+  }
+
+  function setSpeed(speed) {
+    currentSpeed = speed;
+    if (audio) audio.playbackRate = speed;
+    document.querySelectorAll('.speed-btn').forEach(b => {
+      b.classList.toggle('active', parseFloat(b.textContent) === speed);
+    });
+    if (document.getElementById('trackInfo')) {
+      document.getElementById('trackInfo').textContent = `Speed: ${speed}x`;
+    }
+  }
+
+  function onTimeUpdate() {
+    if (!audio) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('scrubber').value = pct;
+    updateTimeDisplay();
+  }
+
+  function updateTimeDisplay() {
+    if (!audio) return;
+    const cur = audio.currentTime / currentSpeed;
+    const tot = audio.duration / currentSpeed;
+    document.getElementById('currentTime').textContent = fmtTime(cur);
+    document.getElementById('totalTime').textContent = fmtTime(tot);
+  }
+
+  function fmtTime(s) {
+    if (isNaN(s)) return '0:00.0';
+    const m = Math.floor(s / 60);
+    const sec = (s % 60).toFixed(1);
+    return `${m}:${sec.padStart(4, '0')}`;
+  }
+
+  // Scrubber seek
+  document.getElementById('scrubber').addEventListener('input', (e) => {
+    if (!audio) return;
+    audio.currentTime = (e.target.value / 100) * audio.duration;
+  });
+
+  // Waveform click to seek
+  document.getElementById('waveform').addEventListener('click', (e) => {
+    if (!audio || !audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = pct * audio.duration;
+  });
+
+  // Simple waveform visualization
+  function drawWaveform() {
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth * 2;
+    canvas.height = canvas.offsetHeight * 2;
+    ctx.fillStyle = '#16213e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const bars = 60;
+    const barWidth = canvas.width / bars;
+    for (let i = 0; i < bars; i++) {
+      const h = (Math.random() * 0.6 + 0.1) * canvas.height;
+      const y = (canvas.height - h) / 2;
+      ctx.fillStyle = '#0f3460';
+      ctx.fillRect(i * barWidth + 1, y, barWidth - 2, h);
+    }
+  }
+
+  loadFiles();
+  drawWaveform();
+</script>
+</body>
+</html>

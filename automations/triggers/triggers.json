@@ -1,0 +1,35 @@
+{
+  "triggers": [
+    {
+      "id": "aware_auto_engage",
+      "name": "Aware Proactive Engagement",
+      "description": "Periodically checks if a proactive prompt should be fired",
+      "type": "cron",
+      "enabled": true,
+      "schedule": {
+        "interval_minutes": 30,
+        "time_window": [
+          "08:00",
+          "22:00"
+        ]
+      },
+      "action": {
+        "type": "script",
+        "path": "/data/data/com.termux/files/home/Athena/automations/aware/auto_engage.sh",
+        "args": []
+      },
+      "cooldown_minutes": 0,
+      "max_executions_per_hour": 2,
+      "created_at": "2026-05-31",
+      "tags": [
+        "aware",
+        "proactive",
+        "life"
+      ]
+    }
+  ],
+  "engine": {
+    "running": false,
+    "check_interval": 60
+  }
+}

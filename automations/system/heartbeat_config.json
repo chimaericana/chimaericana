@@ -1,0 +1,12 @@
+{
+  "interval_seconds": 300,
+  "missed_threshold": 3,
+  "checks": {
+    "disk_space": true,
+    "memory": true,
+    "network": true,
+    "processes": true,
+    "automations": true
+  },
+  "alert_on_miss": true
+}

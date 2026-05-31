@@ -1,0 +1,13 @@
+{
+  "high_engagement_threshold": 100,
+  "negative_sentiment_threshold": 3,
+  "follower_milestone_interval": 1000,
+  "check_interval_minutes": 30,
+  "enabled": {
+    "high_engagement": true,
+    "negative_sentiment": true,
+    "trending_mentions": true,
+    "follower_milestone": true,
+    "influencer_interaction": false
+  }
+}
