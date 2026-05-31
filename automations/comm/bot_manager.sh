@@ -23,10 +23,27 @@ start_discord() {
         return 1
     fi
 
-    # Check token is configured
-    TOKEN=$(python3 -c "import json; c=json.load(open('$COMM_DIR/config.json')); print(c.get('discord',{}).get('token',''))" 2>/dev/null)
+    # Check token is configured (supports .env or token_env)
+    TOKEN=$(python3 -c "
+import json, os
+from pathlib import Path
+cfg = json.load(open('$COMM_DIR/config.json'))
+# Try .env first
+env_path = Path('$COMM_DIR') / '.env'
+if env_path.exists():
+    for line in env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith('#') and '=' in line:
+            k, v = line.split('=', 1)
+            os.environ.setdefault(k.strip(), v.strip())
+token_env = cfg.get('discord',{}).get('token_env', 'DISCORD_BOT_TOKEN')
+token = os.environ.get(token_env, '')
+if not token:
+    token = cfg.get('discord',{}).get('token', '')
+print(token)
+" 2>/dev/null)
     if [ -z "$TOKEN" ] || echo "$TOKEN" | grep -q "YOUR_"; then
-        echo "❌ Discord token not configured. Edit config.json first."
+        echo "❌ Discord token not configured. Check .env or config.json."
         return 1
     fi
 
