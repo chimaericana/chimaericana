@@ -6,6 +6,41 @@
 
 A powerful Pi assistant embodying the fusion of ancient wisdom and cutting-edge technology. Athena manages public relations, communication workflows, and automation systems while serving as a strategic partner.
 
+---
+
+## 🚀 Auto-Start: Automate Integration
+
+Athena can run **24/7** — surviving phone reboots and Android's process killer — using the **Automate** app (by LlamaLab) to auto-start everything on boot.
+
+### What Automate Does
+
+| Event | Action |
+|-------|--------|
+| Phone boots | Automate launches Termux, runs startup script → starts Pi + Discord bot + watchdog |
+| Every 5 min | Checks if Pi/Discord bot are alive → restarts if killed |
+| Android kills Termux | Automate wakes it back up within minutes |
+
+### Quick Install
+
+```bash
+# 1. Check status
+bash ~/Athena/.automate/status.sh
+
+# 2. Import the flow (the file is ready to tap)
+#    Open Files → Downloads → tap athena_autostart.flo → choose Automate
+
+# 3. Or run the startup manually right now
+bash ~/Athena/.automate/startup.sh
+```
+
+### Commands
+- `/aware automate status` — Check if Pi, Discord bot, watchdog are running
+- `/aware automate install` — Instructions to import the Automate flow
+- `/aware automate start` — Run startup script right now
+- `/aware automate fix` — Restart any down services
+
+---
+
 ## Assistant Configuration
 - **Mode**: General purpose + PR agent
 - **Default Provider**: OpenRouter

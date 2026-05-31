@@ -570,4 +570,56 @@ else:
       ctx.ui.notify(result.stdout || `Unknown agent: ${agent}`, "info");
     },
   });
+
+  // /aware automate — Check and manage Automate integration
+  pi.registerCommand("aware automate", {
+    description: "Check Automate status and get setup instructions",
+    handler: async (args, ctx) => {
+      const subcmd = args.trim().toLowerCase();
+
+      if (subcmd === "status" || subcmd === "") {
+        const statusResult = await run("bash", ["~Athena/.automate/status.sh"]);
+        ctx.ui.notify(statusResult.stdout || "Status check failed.", "info");
+        return;
+      }
+
+      if (subcmd === "install" || subcmd === "import" || subcmd === "flo") {
+        quickNotify(
+          "📦 **Automate Flow Import**\n\n" +
+          "The flow file is ready at:\n" +
+          "`/sdcard/Download/athena_autostart.flo`\n\n" +
+          "**To import:**\n" +
+          "1. Open Files app → Downloads folder\n" +
+          "2. Tap `athena_autostart.flo`\n" +
+          "3. Choose **Automate** from the picker\n" +
+          "4. Tap ▶️ Play to start the flow\n\n" +
+          "The flow auto-starts Pi + Discord bot on every boot, " +
+          "and checks every 5 minutes that everything is alive."
+        );
+        return;
+      }
+
+      if (subcmd === "start" || subcmd === "run") {
+        ctx.ui.notify("🔥 Running Automate startup script...", "info");
+        const result = await run("bash", ["~Athena/.automate/startup.sh"]);
+        ctx.ui.notify(result.stdout || "Startup complete.", "info");
+        return;
+      }
+
+      if (subcmd === "fix" || subcmd === "repair") {
+        const result = await run("bash", ["~Athena/.automate/status.sh", "--fix"]);
+        ctx.ui.notify(result.stdout || "Fix attempted.", "info");
+        return;
+      }
+
+      quickNotify(
+        "🤖 **Automate Commands:**\n\n" +
+        "`/aware automate` or `/aware automate status` — Check all services\n" +
+        "`/aware automate install` — Install the Automate flow (import .flo)\n" +
+        "`/aware automate start` — Run startup script now\n" +
+        "`/aware automate fix` — Restart any down services\n" +
+        "`/aware automate help` — This message"
+      );
+    },
+  });
 }

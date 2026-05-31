@@ -3,20 +3,27 @@
     "token_env": "DISCORD_BOT_TOKEN",
     "owner_id": "1509455474318250087",
     "channels": {
-      "alerts": "ALERT_CHANNEL_ID",
+      "alerts": "1510714761921302640",
       "reports": "REPORT_CHANNEL_ID",
       "social": "SOCIAL_CHANNEL_ID",
       "pr": "PR_CHANNEL_ID",
       "general": "1509457679767048219",
-      "aware": "1509457679767048219"
+      "aware": "1509457679767048219",
+      "athena-log": "1510714757882319019",
+      "dev-journal": "1510714773170426099",
+      "builds": "1510714769437364355",
+      "content-pipeline": "1510714780862910708",
+      "social-feed": "1510714784784322742",
+      "roadmap": "1510714793525514461",
+      "analytics": "1510714797228822789"
     },
     "agent_channels": {
       "nexus": "1509457679767048219",
-      "press": "PR_CHANNEL_ID",
-      "echo": "SOCIAL_CHANNEL_ID",
-      "shield": "ALERT_CHANNEL_ID",
-      "signal": "PR_CHANNEL_ID",
-      "aware": "1509457679767048219"
+      "press": "1510714780862910708",
+      "echo": "1510714784784322742",
+      "shield": "1510714761921302640",
+      "signal": "1510714780862910708",
+      "aware": "1510714773170426099"
     },
     "guild_id": "1509457678890569940",
     "enabled": true
@@ -35,15 +42,39 @@
     "enabled": false
   },
   "routing": {
-    "urgent": ["discord"],
-    "alert": ["discord"],
-    "info": ["discord"],
-    "digest": ["discord"],
-    "social": ["discord"],
-    "pr": ["discord"],
-    "aware": ["discord"],
-    "heartbeat_critical": ["discord"],
-    "heartbeat_warning": ["discord"]
+    "urgent": [
+      "discord"
+    ],
+    "alert": [
+      "discord"
+    ],
+    "info": [
+      "discord"
+    ],
+    "digest": [
+      "discord"
+    ],
+    "social": [
+      "discord"
+    ],
+    "pr": [
+      "discord"
+    ],
+    "aware": [
+      "discord"
+    ],
+    "build": [
+      "discord"
+    ],
+    "deploy": [
+      "discord"
+    ],
+    "heartbeat_critical": [
+      "discord"
+    ],
+    "heartbeat_warning": [
+      "discord"
+    ]
   },
   "agents": {
     "enabled": true,
