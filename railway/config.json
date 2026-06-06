@@ -1,0 +1,47 @@
+{
+  "discord": {
+    "owner_id": "YOUR_OWNER_ID",
+    "channels": {
+      "general": "GENERAL_CHANNEL_ID",
+      "athena-log": "LOG_CHANNEL_ID",
+      "alerts": "ALERTS_CHANNEL_ID",
+      "builds": "BUILDS_CHANNEL_ID",
+      "dev-journal": "DEV_JOURNAL_CHANNEL_ID",
+      "content-pipeline": "CONTENT_CHANNEL_ID",
+      "social-feed": "SOCIAL_CHANNEL_ID",
+      "roadmap": "ROADMAP_CHANNEL_ID",
+      "analytics": "ANALYTICS_CHANNEL_ID"
+    },
+    "guild_id": "GUILD_ID",
+    "enabled": true
+  },
+  "routing": {
+    "urgent": ["discord"],
+    "alert": ["discord"],
+    "info": ["discord"],
+    "digest": ["discord"],
+    "social": ["discord"],
+    "pr": ["discord"],
+    "aware": ["discord"],
+    "build": ["discord"],
+    "deploy": ["discord"]
+  },
+  "agents": {
+    "enabled": true,
+    "response_timeout_seconds": 90,
+    "max_concurrent_agents": 3
+  },
+  "openrouter": {
+    "base_url": "https://openrouter.ai/api/v1",
+    "default_model": "z-ai/glm-4.5-air:free",
+    "fallback_models": [
+      "z-ai/glm-4.5-air:free",
+      "google/gemini-2.0-flash-001",
+      "openai/gpt-4o-mini"
+    ]
+  },
+  "logging": {
+    "level": "INFO",
+    "max_size_mb": 5
+  }
+}

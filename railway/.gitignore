@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Logs & PIDs
+*.log
+*.pid
+automations/comm/.pids/
+
+# Databases (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+
+# Voice notes (generated)
+*.mp3
+*.wav
+*.ogg
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+
+# Environment & secrets
+.env
+.env.local
+*.secret
+.crush/
+
+# Runtime state
+automations/observability/*.jsonl
+automations/social/*.jsonl
+aware/state.json
+aware/scheduler.json
